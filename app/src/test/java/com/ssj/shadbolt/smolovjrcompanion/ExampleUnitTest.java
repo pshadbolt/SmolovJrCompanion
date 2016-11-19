@@ -1,5 +1,7 @@
 package com.ssj.shadbolt.smolovjrcompanion;
 
+import com.ssj.shadbolt.smolovjrcompanion.model.Workout;
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -11,7 +13,11 @@ import static org.junit.Assert.*;
  */
 public class ExampleUnitTest {
     @Test
-    public void addition_isCorrect() throws Exception {
+    public void plateDiagram() throws Exception {
+
+        Workout workout = new Workout();
+        workout.setWeight(300);
+        System.out.println(workout.getPlateDiagram());
         assertEquals(4, 2 + 2);
     }
 }
