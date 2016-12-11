@@ -1,6 +1,6 @@
 package com.ssj.shadbolt.smolovjrcompanion;
 
-import com.ssj.shadbolt.smolovjrcompanion.model.Workout;
+import com.ssj.shadbolt.smolovjrcompanion.model.SmolovJrUtil;
 
 import org.junit.Test;
 
@@ -12,12 +12,10 @@ import static org.junit.Assert.*;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 public class ExampleUnitTest {
+
     @Test
     public void plateDiagram() throws Exception {
-
-        Workout workout = new Workout();
-        workout.setWeight(300);
-        System.out.println(workout.getPlateDiagram());
+        System.out.println(SmolovJrUtil.getPlateDiagram(300));
         assertEquals(4, 2 + 2);
     }
 }

@@ -44,6 +44,8 @@ public class ImageAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
 
         TextView text_view;
+        dataSource.open();
+
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
             text_view = new TextView(mContext);
@@ -55,12 +57,12 @@ public class ImageAdapter extends BaseAdapter {
 
         if (dataSource.getWorkout(position) != null) {
             text_view.setTypeface(null, Typeface.BOLD);
-            text_view.setBackgroundResource(mContext.getResources().getIdentifier("ic_action_accept" , "drawable", mContext.getPackageName()));
-        }
-        else {
+            text_view.setBackgroundResource(mContext.getResources().getIdentifier("ic_action_accept", "drawable", mContext.getPackageName()));
+        } else {
             text_view.setTypeface(null, Typeface.NORMAL);
             text_view.setBackgroundResource(Color.TRANSPARENT);
         }
+        dataSource.close();
 
         text_view.setGravity(Gravity.CENTER);
         text_view.setText(mThumbIds[position]);

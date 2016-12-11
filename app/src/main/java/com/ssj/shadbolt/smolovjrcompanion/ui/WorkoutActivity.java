@@ -29,14 +29,16 @@ public class WorkoutActivity extends AppCompatActivity {
 
         // Create the database connection
         datasource = new WorkoutDataSource(this);
-        datasource.open();
 
         // Set the back button to parent
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         int index = getIntent().getExtras().getInt("index");
 
+        datasource.open();
         workout = datasource.getWorkout(index);
+        datasource.close();
+
         ((TextView) findViewById(R.id.workoutLabel)).setText(workout.toString());
     }
 
@@ -61,7 +63,9 @@ public class WorkoutActivity extends AppCompatActivity {
                     .setTitle("Delete Workout?")
                     .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
+                            datasource.open();
                             datasource.deleteWorkout(workout);
+                            datasource.close();
                             finish();
                         }
                     }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -83,11 +87,5 @@ public class WorkoutActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onStop() {
-        datasource.close();
-        super.onRestart();
     }
 }

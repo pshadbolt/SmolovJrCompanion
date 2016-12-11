@@ -23,10 +23,15 @@ public class MainActivity extends AppCompatActivity {
     private ImageAdapter imageAdapter;
     private GridView gridView;
 
+    private int lastIndex;
+    private int maxIndex;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setTitle(R.string.title_activity_main);
 
         // Create the database connection
         datasource = new WorkoutDataSource(this);
@@ -45,27 +50,27 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-
     /**
      * Control the state of the train button
      */
-    private void setTrainButton(){
-        int lastIndex = datasource.getLastIndex();
+    private void setTrainButton() {
+        datasource.open();
+        lastIndex = datasource.getLastIndex();
+        maxIndex = datasource.getMaxIndex();
+        datasource.close();
         Button trainButton = (Button) findViewById(R.id.train);
 
-        if(lastIndex==datasource.getMaxIndex()){
+        if (lastIndex == maxIndex) {
             trainButton.setVisibility(View.GONE);
-        }else{
+        } else {
             trainButton.setVisibility(View.VISIBLE);
-            trainButton.setText("TRAIN DAY "+(datasource.getLastIndex() + 2));
+            trainButton.setText("TRAIN DAY " + (lastIndex + 2));
         }
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        datasource.open();
         imageAdapter.notifyDataSetChanged();
         gridView.invalidateViews();
         setTrainButton();
@@ -74,23 +79,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        datasource.open();
         imageAdapter.notifyDataSetChanged();
         gridView.invalidateViews();
         setTrainButton();
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
-        datasource.open();
         setTrainButton();
-    }
-
-    @Override
-    protected void onStop(){
-        datasource.close();
-        super.onStop();
     }
 
     @Override
@@ -113,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, DatabaseActivity.class);
             startActivity(intent);
             return true;
-        }else if (id == R.id.action_about) {
+        } else if (id == R.id.action_about) {
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
             return true;
@@ -124,10 +121,12 @@ public class MainActivity extends AppCompatActivity {
     // View a previous training day or launch new training
     public void openWorkout(int position) {
         Intent intent;
+        datasource.open();
         if (datasource.getWorkout(position) != null)
             intent = new Intent(this, WorkoutActivity.class);
         else
             intent = new Intent(this, TrainingActivity.class);
+        datasource.close();
         intent.putExtra("index", position);
         startActivity(intent);
     }
@@ -135,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
     // Launch the next training day
     public void train(View v) {
         Intent intent = new Intent(this, TrainingActivity.class);
-        intent.putExtra("index", datasource.getLastIndex() + 1);
+        intent.putExtra("index", lastIndex + 1);
         startActivity(intent);
     }
 }

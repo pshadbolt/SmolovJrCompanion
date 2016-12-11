@@ -1,3 +1,9 @@
+12/11/2016
+
+- Plate diagram added. Calibrated for standard pound and kilogram plates.
+- Rounding of weights selection
+- Minor UI revisions
+
 11/01/2015
 
 - Added About section.

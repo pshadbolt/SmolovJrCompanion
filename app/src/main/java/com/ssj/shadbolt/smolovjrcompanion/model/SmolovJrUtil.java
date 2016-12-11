@@ -1,5 +1,8 @@
 package com.ssj.shadbolt.smolovjrcompanion.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * Created by shadbolt on 11/19/2016.
  */
@@ -43,7 +46,7 @@ public class SmolovJrUtil {
         }
     }
 
-    public static int getWeight(int index, int weight, int increment) {
+    public static int getWeight(int index, int weight, int increment, int round) {
 
         double percentage;
         int mulitplier = 2;
@@ -73,49 +76,30 @@ public class SmolovJrUtil {
         if (index < 4)
             mulitplier = 0;
 
-        return (int) Math.round(weight * percentage + increment * mulitplier);
+        return (int) (round * (Math.round((weight * percentage + increment * mulitplier) / round)));
     }
 
-    public static String getPlateDiagram(int weight){
-        String plates = "";
-        int total = weight - 45;
+    public static String getPlateDiagram(int weight, String units) {
+        String plateDiagram = "===";
+        int total;
 
-        while(total - 90 >= 0){
-            plates+=" 45";
-            total-=90;
+        ArrayList<String> increments;
+
+        if (units.equals("lbs")) {
+            total = weight - 45;
+            increments = new ArrayList<String>(Arrays.asList("45", "35", "25", "10", "5", "2.5", "1", "0.5", "0.25"));
+        } else {
+            total = weight - 20;
+            increments = new ArrayList<String>(Arrays.asList("25", "20", "15", "10", "5", "2.5", "2", "1.5", "1", "0.5", "0.25"));
         }
-        while(total - 70 >= 0){
-            plates+=" 35";
-            total-=70;
+
+        for (String increment : increments) {
+            double plate = Double.parseDouble(increment);
+            while (total - plate * 2 >= 0) {
+                plateDiagram = plateDiagram + "|" + increment + "|";
+                total -= plate * 2;
+            }
         }
-        while(total - 50 >= 0){
-            plates+=" 25";
-            total-=50;
-        }
-        while(total - 20 >= 0){
-            plates+=" 10";
-            total-=20;
-        }
-        while(total - 10 >= 0){
-            plates+=" 5";
-            total-=10;
-        }
-        while(total - 5 >= 0){
-            plates+=" 2.5";
-            total-=5;
-        }
-        while(total - 2 >= 0){
-            plates+=" 1";
-            total-=2;
-        }
-        while(total - 1 > 0){
-            plates+=" 0.5";
-            total-=1;
-        }
-        while(total - 0.5 > 0){
-            plates+=" 0.25";
-            total-=0.5;
-        }
-        return plates;
+        return plateDiagram;
     }
 }

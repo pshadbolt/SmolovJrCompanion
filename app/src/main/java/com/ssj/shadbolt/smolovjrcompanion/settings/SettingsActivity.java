@@ -10,13 +10,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.ssj.shadbolt.smolovjrcompanion.R;
 
-public class SettingsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, NumberPicker.OnValueChangeListener {
+public class SettingsActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, NumberPicker.OnValueChangeListener, View.OnClickListener {
 
     private final TextWatcher mTextEditorWatcher = new TextWatcher() {
 
@@ -33,17 +34,24 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
     public static String pref_name = "settings_pref_v1";
     public static String pref_one_rep_max = "one_rep_max";
     public static String pref_increment = "increment";
+    public static String pref_round = "round";
     public static String pref_units = "units";
     public static String pref_rest = "rest";
+    public static String pref_plate_diagram = "plate_diagram";
 
-    int one_rep_max_value;
-    int increment_value;
-    int rest_value;
+    int value_one_rep_max;
+    int value_increment;
+    int value_rest;
+    String value_units = null;
+    int value_round;
+    boolean value_plate_diagram;
 
     TextView tv_one_rep_max = null;
     TextView tv_increment = null;
-    String units = null;
     TextView tv_rest = null;
+    Spinner sp_units = null;
+    Spinner sp_round = null;
+    CheckBox check_plate_diagram;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,29 +61,43 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
         tv_one_rep_max = (TextView) findViewById(R.id.one_rep_max_value);
         tv_increment = (TextView) findViewById(R.id.increment_value);
         tv_rest = (TextView) findViewById(R.id.rest_value);
-        Spinner sp_units = (Spinner) findViewById(R.id.units_value);
+        sp_units = (Spinner) findViewById(R.id.units_value);
+        sp_round = (Spinner) findViewById(R.id.round_value);
+        check_plate_diagram = (CheckBox) findViewById(R.id.platediagram_enabled);
 
         // Set Spinner values
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.units_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sp_units.setAdapter(adapter);
+        ArrayAdapter<CharSequence> adapter_units = ArrayAdapter.createFromResource(this, R.array.units_array, android.R.layout.simple_spinner_item);
+        adapter_units.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sp_units.setAdapter(adapter_units);
+
+        ArrayAdapter<CharSequence> adapter_round = ArrayAdapter.createFromResource(this, R.array.round_array, android.R.layout.simple_spinner_item);
+        adapter_round.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sp_round.setAdapter(adapter_round);
 
         // Restore the preference values
         SharedPreferences settings = getSharedPreferences(pref_name, 0);
-        one_rep_max_value = settings.getInt(pref_one_rep_max, 300);
-        tv_one_rep_max.setText(Integer.toString(one_rep_max_value));
+        value_one_rep_max = settings.getInt(pref_one_rep_max, 300);
+        tv_one_rep_max.setText(Integer.toString(value_one_rep_max));
 
-        increment_value = settings.getInt(pref_increment, 5);
-        tv_increment.setText(Integer.toString(increment_value));
+        value_increment = settings.getInt(pref_increment, 5);
+        tv_increment.setText(Integer.toString(value_increment));
 
-        rest_value = settings.getInt(pref_rest, 2);
-        tv_rest.setText(Integer.toString(rest_value));
+        value_rest = settings.getInt(pref_rest, 2);
+        tv_rest.setText(Integer.toString(value_rest));
 
-        units = settings.getString(pref_units, "lbs");
-        sp_units.setSelection(adapter.getPosition(units));
+        value_units = settings.getString(pref_units, "lbs");
+        sp_units.setSelection(adapter_units.getPosition(value_units));
+
+        value_round = settings.getInt(pref_round, 1);
+        sp_round.setSelection(adapter_round.getPosition(Integer.toString(value_round)));
+
+        value_plate_diagram = settings.getBoolean(pref_plate_diagram, true);
+        check_plate_diagram.setChecked(value_plate_diagram);
 
         // Add listeners
         sp_units.setOnItemSelectedListener(this);
+        sp_round.setOnItemSelectedListener(this);
+        check_plate_diagram.setOnClickListener(this);
     }
 
     @Override
@@ -92,7 +114,17 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
 
     // Spinner Selector
     public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-        units = (String) parent.getItemAtPosition(pos);
+        if (parent.getId() == R.id.units_value) {
+            value_units = (String) parent.getItemAtPosition(pos);
+        } else if (parent.getId() == R.id.round_value) {
+            value_round = Integer.parseInt((String) parent.getItemAtPosition(pos));
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view.equals(check_plate_diagram))
+            value_plate_diagram = ((CheckBox) view).isChecked();
     }
 
     @Override
@@ -114,14 +146,14 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
         final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
         np.setMaxValue(1000);
         np.setMinValue(0);
-        np.setValue(one_rep_max_value);
+        np.setValue(value_one_rep_max);
         np.setWrapSelectorWheel(false);
         np.setOnValueChangedListener(this);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                one_rep_max_value = np.getValue();
-                tv_one_rep_max.setText(String.valueOf(one_rep_max_value));
+                value_one_rep_max = np.getValue();
+                tv_one_rep_max.setText(String.valueOf(value_one_rep_max));
                 d.dismiss();
             }
         });
@@ -143,14 +175,14 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
         final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
         np.setMaxValue(100);
         np.setMinValue(0);
-        np.setValue(increment_value);
+        np.setValue(value_increment);
         np.setWrapSelectorWheel(false);
         np.setOnValueChangedListener(this);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                increment_value = np.getValue();
-                tv_increment.setText(String.valueOf(increment_value));
+                value_increment = np.getValue();
+                tv_increment.setText(String.valueOf(value_increment));
                 d.dismiss();
             }
         });
@@ -172,14 +204,14 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
         final NumberPicker np = (NumberPicker) d.findViewById(R.id.numberPicker1);
         np.setMaxValue(5);
         np.setMinValue(1);
-        np.setValue(rest_value);
+        np.setValue(value_rest);
         np.setWrapSelectorWheel(false);
         np.setOnValueChangedListener(this);
         b1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                rest_value = np.getValue();
-                tv_rest.setText(String.valueOf(rest_value));
+                value_rest = np.getValue();
+                tv_rest.setText(String.valueOf(value_rest));
                 d.dismiss();
             }
         });
@@ -196,17 +228,18 @@ public class SettingsActivity extends AppCompatActivity implements AdapterView.O
      *
      */
     public void savePreferences() {
-        // We need an Editor object to make preference changes.
-        // All objects are from android.context.Context
         SharedPreferences settings = getSharedPreferences(pref_name, 0);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putInt(pref_one_rep_max, one_rep_max_value);
-        editor.putInt(pref_increment, increment_value);
-        editor.putInt(pref_rest, rest_value);
-        editor.putString(pref_units, units);
+        editor.putInt(pref_one_rep_max, value_one_rep_max);
+        editor.putInt(pref_increment, value_increment);
+        editor.putInt(pref_rest, value_rest);
+        editor.putString(pref_units, value_units);
+        editor.putInt(pref_round, value_round);
+        editor.putBoolean(pref_plate_diagram, value_plate_diagram);
 
-        // Commit the edits!
         editor.commit();
     }
+
+
 }

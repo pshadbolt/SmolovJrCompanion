@@ -15,16 +15,15 @@ public class AboutActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
-
         setChangeLog();
     }
 
-    private void setChangeLog(){
+    private void setChangeLog() {
         BufferedInputStream stream = new BufferedInputStream(getResources().openRawResource(R.raw.changelog));
 
         byte[] contents = new byte[1024];
         int bytesRead = 0;
-        String strFileContents="";
+        String strFileContents = "";
         try {
             while ((bytesRead = stream.read(contents)) != -1) {
                 strFileContents += new String(contents, 0, bytesRead);

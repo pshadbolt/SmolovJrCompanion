@@ -44,7 +44,7 @@ public class TrainingActivity extends AppCompatActivity {
     private TextView setsText;
     private SetCountDown aCounter;
 
-    private boolean saved=false;
+    private boolean saved = false;
 
     public class SetCountDown extends CountDownTimer {
 
@@ -55,7 +55,7 @@ public class TrainingActivity extends AppCompatActivity {
         }
 
         public void onTick(long millisUntilFinished) {
-            countdownText.setText("Rest Time: " + df.format(millisUntilFinished / 1000.0)+" secs");
+            countdownText.setText("Rest Time: " + df.format(millisUntilFinished / 1000.0) + " secs");
         }
 
         public void onFinish() {
@@ -75,14 +75,13 @@ public class TrainingActivity extends AppCompatActivity {
 
         // Create the database connection
         datasource = new WorkoutDataSource(this);
-        datasource.open();
 
         // Get the settings preferences
         settings = getSharedPreferences(SettingsActivity.pref_name, 0);
 
         // Get the workout information
         index = getIntent().getExtras().getInt("index");
-        ((TextView) findViewById(R.id.label)).setText("DAY " + (index + 1));
+        setTitle("DAY " + (index + 1));
 
         sets = SmolovJrUtil.getSets(index);
         setsRemaining = sets;
@@ -111,12 +110,6 @@ public class TrainingActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStop() {
-        datasource.close();
-        super.onRestart();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_training, menu);
@@ -139,7 +132,7 @@ public class TrainingActivity extends AppCompatActivity {
             Intent intent = new Intent(this, DatabaseActivity.class);
             startActivity(intent);
             return true;
-        }else if (id == R.id.action_about) {
+        } else if (id == R.id.action_about) {
             Intent intent = new Intent(this, AboutActivity.class);
             startActivity(intent);
             return true;
@@ -158,7 +151,7 @@ public class TrainingActivity extends AppCompatActivity {
             DecimalFormat df = new DecimalFormat("#.0");
 
             rest = newRest;
-            countdownText.setText("Rest Time: " +  df.format(rest * 60)+" secs");
+            countdownText.setText("Rest Time: " + df.format(rest * 60) + " secs");
             aCounter = new SetCountDown((rest * 60 * 1000), 100);
         }
     }
@@ -169,22 +162,29 @@ public class TrainingActivity extends AppCompatActivity {
     public void setTrainingDay() {
 
         // Set the title
-        units = settings.getString(SettingsActivity.pref_units,"lbs");
+        units = settings.getString(SettingsActivity.pref_units, "lbs");
 
         // Get the weight values
         int one_rep_max = settings.getInt(SettingsActivity.pref_one_rep_max, 0);
         int increment = settings.getInt(SettingsActivity.pref_increment, 0);
-        weight = SmolovJrUtil.getWeight(index, one_rep_max, increment);
+        int round = settings.getInt(SettingsActivity.pref_round, 0);
+        weight = SmolovJrUtil.getWeight(index, one_rep_max, increment, round);
 
         //Set the plate diagram
-        ((TextView) findViewById(R.id.plateDiagram)).setText(SmolovJrUtil.getPlateDiagram(weight));
+        TextView tv_plateDiagram = (TextView) findViewById(R.id.plateDiagram);
+        if (settings.getBoolean(SettingsActivity.pref_plate_diagram, true)) {
+            tv_plateDiagram.setVisibility(View.VISIBLE);
+            tv_plateDiagram.setText(SmolovJrUtil.getPlateDiagram(weight, units));
+        } else
+            tv_plateDiagram.setVisibility(View.GONE);
 
-        String workout = sets + " X " + reps + " @ " + weight+" "+units;
+
+        String workout = sets + " X " + reps + " @ " + weight + " " + units;
         ((TextView) findViewById(R.id.training)).setText(workout);
 
-        for(int i=1;i<=sets;i++) {
+        for (int i = 1; i <= sets; i++) {
             int resId = getResources().getIdentifier("set" + i, "id", getPackageName());
-            ((TextView) findViewById(resId)).setText("Set "+i+": \t\t" + reps + " reps at " + weight);
+            ((TextView) findViewById(resId)).setText("Set " + String.format("%02d", i) + ": \t\t" + reps + " reps at " + weight);
         }
     }
 
@@ -195,8 +195,8 @@ public class TrainingActivity extends AppCompatActivity {
 
         setsRemaining--;
 
-        int resId = getResources().getIdentifier("set" + (sets-setsRemaining), "id", getPackageName());
-        TextView tv  = ((TextView) findViewById(resId));
+        int resId = getResources().getIdentifier("set" + (sets - setsRemaining), "id", getPackageName());
+        TextView tv = ((TextView) findViewById(resId));
         tv.setPaintFlags(tv.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
 
         if (setsRemaining == 0) {
@@ -212,11 +212,13 @@ public class TrainingActivity extends AppCompatActivity {
      *
      */
     public void saveWorkout() {
-        if(!saved) {
+        if (!saved) {
             DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             Date date = new Date();
+            datasource.open();
             datasource.createWorkout(index, sets, reps, weight, dateFormat.format(date));
-            saved=true;
+            datasource.close();
+            saved = true;
         }
     }
 

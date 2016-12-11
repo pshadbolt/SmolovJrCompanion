@@ -4,7 +4,7 @@
     <string name="action_database">Database</string>
     <string name="action_about">About</string>
 
-    <string name="title_activity_main">Overview</string>
+    <string name="title_activity_main">Smolov Jr. Companion</string>
     <string name="title_activity_workout">History</string>
     <string name="title_activity_training">Training</string>
 
@@ -14,9 +14,29 @@
 
     <string name="author_info">Author: Paul Shadbolt</string>
 
+    <string-array name="round_array">
+        <!--item>0.5</item-->
+        <item>1</item>
+        <item>5</item>
+    </string-array>
     <string-array name="units_array">
         <item>lbs</item>
-        <item>kgs</item>
+        <item>kg</item>
     </string-array>
+
     <string name="title_activity_parent">ParentActivity</string>
+
+    <string name="message_number_workouts">Number of saved workouts: </string>
+    <string name="message_delete_database">Delete Database?</string>
+    <string name="message_confirm_delete">All data will be lost</string>
+    <string name="button_delete">Delete</string>
+    <string name="button_cancel">Cancel</string>
+
+    <string name="one_rep_max">One Rep Max:</string>
+    <string name="increment">Increment:</string>
+    <string name="rest_mins">Rest Mins:</string>
+    <string name="units">Units:</string>
+    <string name="round_to_nearest">Round to Nearest:</string>
+    <string name="plate_diagram">Plate diagram</string>
+
 </resources>

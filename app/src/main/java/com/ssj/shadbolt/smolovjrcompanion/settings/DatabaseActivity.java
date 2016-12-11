@@ -25,7 +25,6 @@ public class DatabaseActivity extends AppCompatActivity {
 
         // Create the database connection
         datasource = new WorkoutDataSource(this);
-        datasource.open();
 
         databaseTotalText = (TextView) findViewById(R.id.databaseTotal);
         setTotal();
@@ -33,20 +32,14 @@ public class DatabaseActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_database, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_delete) {
             delete();
             return true;
@@ -67,7 +60,9 @@ public class DatabaseActivity extends AppCompatActivity {
     }
 
     public void setTotal() {
-        databaseTotalText.setText("Number of saved workouts: " + datasource.getAllWorkouts().size());
+        datasource.open();
+        databaseTotalText.setText(Integer.toString(datasource.getAllWorkouts().size()));
+        datasource.close();
     }
 
     public void launchMain() {
@@ -78,14 +73,16 @@ public class DatabaseActivity extends AppCompatActivity {
 
     public void delete() {
         new AlertDialog.Builder(this)
-                .setTitle("Delete Database?")
-                .setMessage("All data will be lost")
-                .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                .setTitle(R.string.message_delete_database)
+                .setMessage(R.string.message_confirm_delete)
+                .setPositiveButton(R.string.button_delete, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
+                        datasource.open();
                         datasource.recreate();
+                        datasource.close();
                         launchMain();
                     }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                }).setNegativeButton(R.string.button_cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 // Do nothing.
             }
